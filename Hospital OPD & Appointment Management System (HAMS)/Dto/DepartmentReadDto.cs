@@ -5,6 +5,7 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Dto
     {
         public int DepartmentId { get; set; }
         public string DepartmentName { get; set; }
+
         public IEnumerable<DoctorReadDto> Doctor { get; set; }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Hospital_OPD___Appointment_Management_System__HAMS_.Data;
 using Hospital_OPD___Appointment_Management_System__HAMS_.Dto;
+using Hospital_OPD___Appointment_Management_System__HAMS_.Model;
 using Hospital_OPD___Appointment_Management_System__HAMS_.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
 {
@@ -38,7 +40,10 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
                 .FirstOrDefaultAsync(x => x.DepartmentId == id);
 
             if (dept == null)
+            {
                 return null;
+            }
+
 
             var s = new DepartmentReadDto
             {
@@ -53,6 +58,61 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
                 }).ToList()
             };
             return s;
+        }
+        public async Task<DepartmentReadDto> CreateAsync(DepartmentCreateDto dto)
+        {
+            var data = new Department
+            {
+                DepartmentName = dto.DepartmentName,
+
+            };
+            await _context.departments.AddAsync(data);
+            await _context.SaveChangesAsync();
+            var read = new DepartmentReadDto
+            {
+                DepartmentId = data.DepartmentId,
+                DepartmentName = data.DepartmentName,
+                Doctor = new List<DoctorReadDto>()
+
+
+            };
+            return read;
+        }
+        public async Task<DepartmentReadDto> UpdateAsync(int id, DepartmentUpdateDto dto)
+        {
+            var data = await _context.departments.Include(x => x.Doctors).FirstOrDefaultAsync(x => x.DepartmentId == id);
+            if (data == null)
+            {
+                return null;
+            }
+
+            data.DepartmentName = dto.DepartmentName;
+            await _context.SaveChangesAsync();
+            var show = new DepartmentReadDto
+            {
+                DepartmentId = data.DepartmentId,
+                DepartmentName = data.DepartmentName,
+
+            };
+            return show;
+        }
+
+        public async Task<DepartmentReadDto> DeleteAsync(int id)
+        {
+            var data = await _context.departments.FindAsync(id);
+            if (data == null)
+            {
+                return null;
+            }
+            _context.departments.Remove(data);
+            await _context.SaveChangesAsync();
+            var show = new DepartmentReadDto
+            {
+                DepartmentId = data.DepartmentId,
+                DepartmentName = data.DepartmentName,
+
+            };
+            return show;
         }
 
     }
