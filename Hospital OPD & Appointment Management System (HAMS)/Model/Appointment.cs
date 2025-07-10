@@ -5,10 +5,10 @@
         public int AppointmentId { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string Status { get; set; }
-        public int PatientId { get; set; }
-        public Patient Patients { get; set; }
-        public int DoctorId { get; set; }
-        public Doctor Doctors { get; set; }
 
+        public int DoctorId { get; set; }
+        public Doctor Doctor { get; set; }
+        public int PatientId { get; set; }
+        public Patient Patient { get; set; }
     }
 }

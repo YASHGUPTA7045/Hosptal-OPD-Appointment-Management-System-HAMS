@@ -17,26 +17,28 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
         }
         public async Task<IEnumerable<DepartmentReadDto>> GetAllAsync()
         {
-            var data = await _context.departments.Include(x => x.Doctors).Select(x => new DepartmentReadDto
-            {
-                DepartmentId = x.DepartmentId,
-                DepartmentName = x.DepartmentName,
-                Doctor = x.Doctors.Select(x => new DoctorReadDto
+            var data = await _context.departments.Include(x => x.Doctors)
+                .Select(x => new DepartmentReadDto
                 {
-                    DoctorId = x.DoctorId,
-                    DoctorName = x.DoctorName,
-                    IsAvailable = x.IsAvailable,
-                    Specialization = x.Specialization
-                })
+                    DepartmentId = x.DepartmentId,
+                    DepartmentName = x.DepartmentName,
+                    Doctors = x.Doctors.Select(x => new DoctorReadDto
+                    {
+                        DoctorId = x.DoctorId,
+                        DoctorName = x.DoctorName,
+                        IsAvailable = x.IsAvailable,
+                        Specialization = x.Specialization,
 
-            }).ToListAsync();
+
+                    }).ToList()
+                }).ToListAsync();
             return data;
         }
 
         public async Task<DepartmentReadDto> GetByIdAsync(int id)
         {
             var dept = await _context.departments
-                .Include(x => x.Doctors)
+
                 .FirstOrDefaultAsync(x => x.DepartmentId == id);
 
             if (dept == null)
@@ -49,13 +51,7 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             {
                 DepartmentId = dept.DepartmentId,
                 DepartmentName = dept.DepartmentName,
-                Doctor = dept.Doctors.Select(x => new DoctorReadDto
-                {
-                    DoctorId = x.DoctorId,
-                    DoctorName = x.DoctorName,
-                    IsAvailable = x.IsAvailable,
-                    Specialization = x.Specialization
-                }).ToList()
+
             };
             return s;
         }
@@ -72,7 +68,7 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             {
                 DepartmentId = data.DepartmentId,
                 DepartmentName = data.DepartmentName,
-                Doctor = new List<DoctorReadDto>()
+
 
 
             };
@@ -80,7 +76,7 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
         }
         public async Task<DepartmentReadDto> UpdateAsync(int id, DepartmentUpdateDto dto)
         {
-            var data = await _context.departments.Include(x => x.Doctors).FirstOrDefaultAsync(x => x.DepartmentId == id);
+            var data = await _context.departments.FirstOrDefaultAsync(x => x.DepartmentId == id);
             if (data == null)
             {
                 return null;

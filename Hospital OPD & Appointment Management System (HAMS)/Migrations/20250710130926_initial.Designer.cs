@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250708113821_Initial")]
-    partial class Initial
+    [Migration("20250710130926_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,21 +36,11 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DoctorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AppointmentId");
-
-                    b.HasIndex("DoctorId");
-
-                    b.HasIndex("PatientId");
 
                     b.ToTable("appointments");
                 });
@@ -126,49 +116,20 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
                     b.ToTable("patients");
                 });
 
-            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Appointment", b =>
-                {
-                    b.HasOne("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Doctor", "Doctors")
-                        .WithMany("Appointments")
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Patient", "Patients")
-                        .WithMany("Appointments")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Doctors");
-
-                    b.Navigation("Patients");
-                });
-
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Doctor", b =>
                 {
-                    b.HasOne("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Department", "Departments")
+                    b.HasOne("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Department", "Department")
                         .WithMany("Doctors")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Departments");
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Department", b =>
                 {
                     b.Navigation("Doctors");
-                });
-
-            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Doctor", b =>
-                {
-                    b.Navigation("Appointments");
-                });
-
-            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Patient", b =>
-                {
-                    b.Navigation("Appointments");
                 });
 #pragma warning restore 612, 618
         }

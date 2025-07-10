@@ -6,6 +6,6 @@
         public string PatientName { get; set; }
         public string PatientEmail { get; set; }
         public string PatientMobile { get; set; }
-        public ICollection<Appointment> Appointments { get; set; }
+
     }
 }

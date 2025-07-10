@@ -7,8 +7,9 @@
         public string Specialization { get; set; }
         public bool IsAvailable { get; set; }
         public int DepartmentId { get; set; }
-        public Department Departments { get; set; }
-        public ICollection<Appointment> Appointments { get; set; }
+
+        public Department Department { get; set; }
+        public List<Appointment> Appointments { get; set; }
 
     }
 }
