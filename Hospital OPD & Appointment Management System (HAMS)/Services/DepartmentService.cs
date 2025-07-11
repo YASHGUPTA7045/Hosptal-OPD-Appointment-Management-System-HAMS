@@ -15,29 +15,39 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
         {
             _context = context;
         }
+
         public async Task<IEnumerable<DepartmentReadDto>> GetAllAsync()
         {
-            var data = await _context.departments.Include(x => x.Doctors)
+            var data = await _context.departments
+                .Include(x => x.Doctors)
+                .ThenInclude(d => d.Appointments)
                 .Select(x => new DepartmentReadDto
                 {
                     DepartmentId = x.DepartmentId,
                     DepartmentName = x.DepartmentName,
-                    Doctors = x.Doctors.Select(x => new DoctorReadDto
+                    Doctors = x.Doctors.Select(d => new DoctorSummary
                     {
-                        DoctorId = x.DoctorId,
-                        DoctorName = x.DoctorName,
-                        IsAvailable = x.IsAvailable,
-                        Specialization = x.Specialization,
+                        DoctorId = d.DoctorId,
+                        DoctorName = d.DoctorName,
 
 
+                        Appointment = d.Appointments.Select(x => new AppointmentSummay
+                        {
+                            AppointmentId = x.AppointmentId,
+                            AppointmentDate = x.AppointmentDate,
+                            Status = x.Status
+
+
+                        }).ToList()
                     }).ToList()
                 }).ToListAsync();
+
             return data;
         }
 
         public async Task<DepartmentReadDto> GetByIdAsync(int id)
         {
-            var dept = await _context.departments
+            var dept = await _context.departments.Include(X => X.Doctors).ThenInclude(x => x.Appointments)
 
                 .FirstOrDefaultAsync(x => x.DepartmentId == id);
 
@@ -51,6 +61,17 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             {
                 DepartmentId = dept.DepartmentId,
                 DepartmentName = dept.DepartmentName,
+                Doctors = dept.Doctors.Select(x => new DoctorSummary
+                {
+                    DoctorId = x.DoctorId,
+                    DoctorName = x.DoctorName,
+                    Appointment = x.Appointments.Select(y => new AppointmentSummay
+                    {
+                        AppointmentDate = y.AppointmentDate,
+                        AppointmentId = y.AppointmentId,
+                        Status = y.Status
+                    }).ToList()
+                }).ToList()
 
             };
             return s;

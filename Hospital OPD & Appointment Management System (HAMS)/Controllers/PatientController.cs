@@ -26,6 +26,20 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Controllers
             if (data == null) return NotFound();
             return Ok(data);
         }
+        [HttpGet("ByName")]
+        public async Task<IActionResult> getbyName(string Name)
+        {
+            var data = await _service.GetPatientByName(Name);
+            if (data == null) return NotFound();
+            return Ok(data);
+        }
+        [HttpGet("ByEmail")]
+        public async Task<IActionResult> getbyEmail(string Email)
+        {
+            var data = await _service.GetPatientByEmail(Email);
+            if (data == null) return NotFound();
+            return Ok(data);
+        }
         [HttpPost]
         public async Task<IActionResult> Create(PatientCreateDto xyz)
         {

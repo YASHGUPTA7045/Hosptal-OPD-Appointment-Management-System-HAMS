@@ -24,11 +24,12 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
                     DoctorName = x.DoctorName,
                     IsAvailable = x.IsAvailable,
                     Specialization = x.Specialization,
-                    Appointments = x.Appointments.Select(x => new AppointmentReadDto
+                    Appointment = x.Appointments.Select(x => new AppointmentSummay
                     {
                         AppointmentId = x.AppointmentId,
                         AppointmentDate = x.AppointmentDate,
                         Status = x.Status,
+
                     }).ToList()
                 }).ToListAsync();
             return data;
@@ -36,7 +37,8 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
         }
         public async Task<DoctorReadDto> GetDoctorById(int id)
         {
-            var data = await _context.doctors.FirstOrDefaultAsync(x => x.DoctorId == id);
+            var data = await _context.doctors.Include(x => x.Appointments)
+                .FirstOrDefaultAsync(x => x.DoctorId == id);
             if (data == null)
             {
                 return null;
@@ -47,6 +49,12 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
                 DoctorName = data.DoctorName,
                 Specialization = data.Specialization,
                 IsAvailable = data.IsAvailable,
+                Appointment = data.Appointments.Select(x => new AppointmentSummay
+                {
+                    AppointmentDate = x.AppointmentDate,
+                    AppointmentId = x.AppointmentId,
+                    Status = x.Status
+                }).ToList()
 
 
             };

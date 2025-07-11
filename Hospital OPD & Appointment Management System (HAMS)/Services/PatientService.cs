@@ -40,6 +40,35 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             return show;
 
         }
+        public async Task<PatientReadDto> GetPatientByName(string name)
+        {
+            var data = await _context.patients.FirstOrDefaultAsync(x => x.PatientName == name);
+            if (data == null) return null;
+            var show = new PatientReadDto
+            {
+                PatientId = data.PatientId,
+                PatientName = data.PatientName,
+                PatientEmail = data.PatientEmail,
+                PatientMobile = data.PatientMobile
+            };
+            return show;
+
+
+        }
+        public async Task<PatientReadDto> GetPatientByEmail(string Email)
+        {
+            var data = await _context.patients.FirstOrDefaultAsync(x => x.PatientEmail == Email);
+            if (data == null) return null;
+            var show = new PatientReadDto
+            {
+                PatientId = data.PatientId,
+                PatientName = data.PatientName,
+                PatientEmail = data.PatientEmail,
+                PatientMobile = data.PatientMobile
+            };
+            return show;
+
+        }
         public async Task<PatientReadDto> CreatePatient(PatientCreateDto xyz)
         {
             var data = new Patient

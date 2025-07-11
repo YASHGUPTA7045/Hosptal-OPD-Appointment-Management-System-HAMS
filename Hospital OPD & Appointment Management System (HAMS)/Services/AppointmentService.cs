@@ -15,11 +15,14 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
         }
         public async Task<IEnumerable<AppointmentReadDto>> GetAllAppoint()
         {
-            var data = await _context.appointments
+            var data = await _context.appointments.Include(x => x.Doctor).Include(x => x.Patient)
                 .Select(x => new AppointmentReadDto
                 {
                     AppointmentId = x.AppointmentId,
                     AppointmentDate = x.AppointmentDate,
+                    DoctorName = x.Doctor.DoctorName,
+                    PatientName = x.Patient.PatientName,
+
 
                     Status = x.Status,
 
@@ -28,7 +31,7 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
         }
         public async Task<AppointmentReadDto> GetAppointById(int id)
         {
-            var data = await _context.appointments
+            var data = await _context.appointments.Include(x => x.Patient).Include(x => x.Doctor)
 
                 .FirstOrDefaultAsync(x => x.AppointmentId == id);
             if (data == null) return null;
@@ -36,6 +39,8 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             {
                 AppointmentId = data.AppointmentId,
                 AppointmentDate = data.AppointmentDate,
+                DoctorName = data.Doctor.DoctorName,
+                PatientName = data.Patient.PatientName,
 
                 Status = data.Status,
             };
@@ -60,28 +65,32 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
                 AppointmentId = data.AppointmentId,
                 AppointmentDate = data.AppointmentDate,
                 Status = data.Status,
+                PatientName = data.Patient.PatientName,
+                DoctorName = data.Doctor.DoctorName,
             };
             return show;
         }
         public async Task<AppointmentReadDto> UpdateAppoint(int id, AppointmentUpdateDto xyz)
         {
-            var data = await _context.appointments
+            var data = await _context.appointments.Include(x => x.Doctor).Include(x => x.Patient)
 
                 .FirstOrDefaultAsync(x => x.AppointmentId == id);
             if (data == null) return null;
             data.AppointmentDate = xyz.AppointmentDate;
-            data.AppointmentId = xyz.AppointmentId;
             data.Status = xyz.Status;
             await _context.SaveChangesAsync();
 
 
-            return new AppointmentReadDto
+            var show = new AppointmentReadDto
             {
                 AppointmentId = data.AppointmentId,
                 AppointmentDate = data.AppointmentDate,
+                DoctorName = data.Doctor.DoctorName,
+                PatientName = data.Patient.PatientName,
 
                 Status = data.Status
             };
+            return show;
         }
         public async Task<AppointmentReadDto> DeleteAppoint(int id)
         {
