@@ -17,7 +17,6 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             var appointments = await _context.appointments
                 .Where(a => a.PatientId == patientId)
                 .Include(a => a.Doctor)
-                .Include(a => a.Prescription)
                 .ToListAsync();
 
             var data = appointments.Select(a => new MedicalHistoryReadDto
@@ -29,9 +28,6 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
                     DoctorId = a.DoctorId,
                     DoctorName = a.Doctor.DoctorName,
                 },
-                Medicine = a.Prescription?.Medicine ?? "N/A",
-                Dosage = a.Prescription?.Dosage ?? "N/A",
-                Advice = a.Prescription?.Advice ?? "N/A"
             }).ToList();
 
             return data;

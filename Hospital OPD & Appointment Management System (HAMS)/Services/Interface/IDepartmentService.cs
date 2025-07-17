@@ -9,5 +9,6 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services.Interface
         Task<DepartmentReadDto> CreateAsync(DepartmentCreateDto dto);
         Task<DepartmentReadDto> UpdateAsync(int id, DepartmentUpdateDto dto);
         Task<DepartmentReadDto> DeleteAsync(int id);
+
     }
 }

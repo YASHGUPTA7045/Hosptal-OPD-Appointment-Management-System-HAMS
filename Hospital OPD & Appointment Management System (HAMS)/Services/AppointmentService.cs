@@ -1,4 +1,5 @@
-﻿using Hospital_OPD___Appointment_Management_System__HAMS_.Data;
+﻿
+using Hospital_OPD___Appointment_Management_System__HAMS_.Data;
 using Hospital_OPD___Appointment_Management_System__HAMS_.Dto;
 using Hospital_OPD___Appointment_Management_System__HAMS_.Model;
 using Hospital_OPD___Appointment_Management_System__HAMS_.Services.Interface;
@@ -46,29 +47,42 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             };
             return show;
         }
-        public async Task<AppointmentReadDto> CreateAppoint(AppointmentCreateDto xyz)
+        public async Task<bool> CreateAppoint(AppointmentCreateDto xyz)
         {
+            var dt = xyz.AppointmentDate;
+            var day = dt.DayOfWeek;
+            var time = dt.TimeOfDay;
+
+            var schedule = await _context.Schedules.Where(s => xyz.DoctorId == s.DoctorId).FirstOrDefaultAsync(d => d.Day == day);
+
+            if (schedule == null)
+            {
+                return false;
+            }
+
+            if (schedule.IsOnLeave || (time < schedule.StartTime || time >= schedule.EndTime))
+            {
+                return false;
+            }
+
+            var isBooked = await _context.appointments.AnyAsync(x => x.AppointmentDate == xyz.AppointmentDate && x.DoctorId == xyz.DoctorId);
+
+            if (isBooked)
+            {
+                return false;
+            }
+
+
             var data = new Appointment
             {
                 AppointmentDate = xyz.AppointmentDate,
                 DoctorId = xyz.DoctorId,
                 PatientId = xyz.PatientId,
-                Status = xyz.Status
-
+                Status = "Scheduled"
             };
             await _context.appointments.AddAsync(data);
             await _context.SaveChangesAsync();
-            var patient = await _context.patients.FindAsync(xyz.PatientId);
-            var doctor = await _context.doctors.FindAsync(xyz.DoctorId);
-            var show = new AppointmentReadDto
-            {
-                AppointmentId = data.AppointmentId,
-                AppointmentDate = data.AppointmentDate,
-                Status = data.Status,
-                PatientName = data.Patient.PatientName,
-                DoctorName = data.Doctor.DoctorName,
-            };
-            return show;
+            return true;
         }
         public async Task<AppointmentReadDto> UpdateAppoint(int id, AppointmentUpdateDto xyz)
         {
@@ -109,6 +123,7 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
         }
 
 
+
+
     }
 }
-

@@ -11,5 +11,8 @@
         public Department Department { get; set; }
         public List<Appointment> Appointments { get; set; }
 
+        public ICollection<DoctorSchedule> DoctorSchedules { get; set; }
+
+
     }
 }

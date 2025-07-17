@@ -13,7 +13,7 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IPrescriptionService, PrescriptionServices>();
 builder.Services.AddScoped<IMedicalHistoryService, MedicalHistoryService>();
-
+builder.Services.AddScoped<IDoctorSchedule, DoctorScheduleServices>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

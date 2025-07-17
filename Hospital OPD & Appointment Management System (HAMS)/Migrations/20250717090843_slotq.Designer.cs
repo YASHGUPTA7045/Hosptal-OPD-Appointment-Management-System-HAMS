@@ -4,6 +4,7 @@ using Hospital_OPD___Appointment_Management_System__HAMS_.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250717090843_slotq")]
+    partial class slotq
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,8 +39,18 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SlotTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -98,34 +111,34 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
                     b.ToTable("doctors");
                 });
 
-            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.DoctorSchedule", b =>
+            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.DoctorSlot", b =>
                 {
-                    b.Property<int>("ScheduleId")
+                    b.Property<int>("DoctorSlotId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduleId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorSlotId"));
 
-                    b.Property<int>("Day")
+                    b.Property<int>("DayOfWeek")
                         .HasColumnType("int");
 
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<bool>("IsOnLeave")
+                    b.Property<bool>("IsBooked")
                         .HasColumnType("bit");
 
-                    b.Property<TimeSpan>("StartTime")
+                    b.Property<TimeSpan>("SlotEndTime")
                         .HasColumnType("time");
 
-                    b.HasKey("ScheduleId");
+                    b.Property<TimeSpan>("SlotStartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("DoctorSlotId");
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("Schedules");
+                    b.ToTable("DoctorSlots");
                 });
 
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Patient", b =>
@@ -205,10 +218,10 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
                     b.Navigation("Department");
                 });
 
-            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.DoctorSchedule", b =>
+            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.DoctorSlot", b =>
                 {
                     b.HasOne("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Doctor", "Doctor")
-                        .WithMany("DoctorSchedules")
+                        .WithMany()
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -219,12 +232,18 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Prescription", b =>
                 {
                     b.HasOne("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Appointment", "Appointment")
-                        .WithMany()
-                        .HasForeignKey("AppointmentId")
+                        .WithOne("Prescription")
+                        .HasForeignKey("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Prescription", "AppointmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Appointment");
+                });
+
+            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Appointment", b =>
+                {
+                    b.Navigation("Prescription")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Department", b =>
@@ -235,8 +254,6 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Doctor", b =>
                 {
                     b.Navigation("Appointments");
-
-                    b.Navigation("DoctorSchedules");
                 });
 #pragma warning restore 612, 618
         }

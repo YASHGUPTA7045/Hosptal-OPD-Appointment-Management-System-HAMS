@@ -4,6 +4,7 @@ using Hospital_OPD___Appointment_Management_System__HAMS_.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250717064450_aapointmentImp")]
+    partial class aapointmentImp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,8 +39,18 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SlotTime")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -96,36 +109,6 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("doctors");
-                });
-
-            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.DoctorSchedule", b =>
-                {
-                    b.Property<int>("ScheduleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduleId"));
-
-                    b.Property<int>("Day")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DoctorId")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<bool>("IsOnLeave")
-                        .HasColumnType("bit");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
-
-                    b.HasKey("ScheduleId");
-
-                    b.HasIndex("DoctorId");
-
-                    b.ToTable("Schedules");
                 });
 
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Patient", b =>
@@ -205,26 +188,21 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
                     b.Navigation("Department");
                 });
 
-            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.DoctorSchedule", b =>
-                {
-                    b.HasOne("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Doctor", "Doctor")
-                        .WithMany("DoctorSchedules")
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Doctor");
-                });
-
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Prescription", b =>
                 {
                     b.HasOne("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Appointment", "Appointment")
-                        .WithMany()
-                        .HasForeignKey("AppointmentId")
+                        .WithOne("Prescription")
+                        .HasForeignKey("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Prescription", "AppointmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Appointment");
+                });
+
+            modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Appointment", b =>
+                {
+                    b.Navigation("Prescription")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Department", b =>
@@ -235,8 +213,6 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Migrations
             modelBuilder.Entity("Hospital_OPD___Appointment_Management_System__HAMS_.Model.Doctor", b =>
                 {
                     b.Navigation("Appointments");
-
-                    b.Navigation("DoctorSchedules");
                 });
 #pragma warning restore 612, 618
         }
