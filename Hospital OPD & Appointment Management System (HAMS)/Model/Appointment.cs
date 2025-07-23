@@ -11,6 +11,8 @@
         public Doctor Doctor { get; set; }
         public int PatientId { get; set; }
         public Patient Patient { get; set; }
+        public Prescription Prescription { get; set; }
+
 
     }
 }

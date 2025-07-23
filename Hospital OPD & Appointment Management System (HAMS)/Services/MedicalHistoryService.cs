@@ -17,18 +17,26 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             var appointments = await _context.appointments
                 .Where(a => a.PatientId == patientId)
                 .Include(a => a.Doctor)
+                .Include(a => a.Prescription)
                 .ToListAsync();
 
-            var data = appointments.Select(a => new MedicalHistoryReadDto
-            {
-                AppointmentId = a.AppointmentId,
-                AppointmentDate = a.AppointmentDate,
-                Doctor = new DoctorSummary
+            var data = appointments
+                .Select(a => new MedicalHistoryReadDto
                 {
-                    DoctorId = a.DoctorId,
-                    DoctorName = a.Doctor.DoctorName,
-                },
-            }).ToList();
+                    AppointmentId = a.AppointmentId,
+                    AppointmentDate = a.AppointmentDate,
+
+                    Doctor = new DoctorSummaryDto
+                    {
+                        DoctorId = a.DoctorId,
+                        DoctorName = a.Doctor.DoctorName,
+                    },
+
+                    Medicine = a.Prescription?.Medicine,
+                    Dosage = a.Prescription?.Dosage,
+                    Advice = a.Prescription?.Advice
+
+                }).ToList();
 
             return data;
         }

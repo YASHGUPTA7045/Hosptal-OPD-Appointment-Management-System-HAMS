@@ -17,6 +17,8 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Data
         public DbSet<Appointment> appointments { get; set; }
         public DbSet<Prescription> prescriptions { get; set; }
         public DbSet<DoctorSchedule> Schedules { get; set; }
+        public DbSet<User> Users { get; set; }
+
 
 
     }

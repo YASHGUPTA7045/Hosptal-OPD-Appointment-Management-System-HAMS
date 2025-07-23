@@ -10,9 +10,11 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
     public class AppointmentService : IAppointmentService
     {
         private readonly AppDbContext _context;
-        public AppointmentService(AppDbContext context)
+        private readonly IEmailServices _emailservices;
+        public AppointmentService(AppDbContext context, IEmailServices emailServices)
         {
             _context = context;
+            _emailservices = emailServices;
         }
         public async Task<IEnumerable<AppointmentReadDto>> GetAllAppoint()
         {
@@ -25,7 +27,7 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
                     PatientName = x.Patient.PatientName,
 
 
-                    Status = x.Status,
+                    Reason = x.Status,
 
                 }).ToListAsync();
             return data;
@@ -43,29 +45,24 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
                 DoctorName = data.Doctor.DoctorName,
                 PatientName = data.Patient.PatientName,
 
-                Status = data.Status,
+                Reason = data.Status,
             };
             return show;
         }
-        public async Task<bool> CreateAppoint(AppointmentCreateDto xyz)
+        public async Task<bool> CreateAppoint(AppointmentCreateDto dto)
         {
-            var dt = xyz.AppointmentDate;
-            var day = dt.DayOfWeek;
-            var time = dt.TimeOfDay;
+            var date = dto.AppointmentDate;
+            var day = date.DayOfWeek;
+            var time = date.TimeOfDay;
 
-            var schedule = await _context.Schedules.Where(s => xyz.DoctorId == s.DoctorId).FirstOrDefaultAsync(d => d.Day == day);
+            var schedule = await _context.Schedules.Where(s => dto.DoctorId == s.DoctorId).FirstOrDefaultAsync(d => d.Day == day);
 
-            if (schedule == null)
+            if (schedule == null || schedule.IsOnLeave || (time < schedule.StartTime || time >= schedule.EndTime))
             {
                 return false;
             }
 
-            if (schedule.IsOnLeave || (time < schedule.StartTime || time >= schedule.EndTime))
-            {
-                return false;
-            }
-
-            var isBooked = await _context.appointments.AnyAsync(x => x.AppointmentDate == xyz.AppointmentDate && x.DoctorId == xyz.DoctorId);
+            var isBooked = await _context.appointments.AnyAsync(x => x.AppointmentDate == dto.AppointmentDate && x.DoctorId == dto.DoctorId);
 
             if (isBooked)
             {
@@ -73,37 +70,77 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             }
 
 
-            var data = new Appointment
+            var appointment = new Appointment
             {
-                AppointmentDate = xyz.AppointmentDate,
-                DoctorId = xyz.DoctorId,
-                PatientId = xyz.PatientId,
-                Status = "Scheduled"
+                DoctorId = dto.DoctorId,
+                PatientId = dto.PatientId,
+                AppointmentDate = dto.AppointmentDate,
+                Status = dto.Reason
             };
-            await _context.appointments.AddAsync(data);
+            await _context.appointments.AddAsync(appointment);
             await _context.SaveChangesAsync();
+
+            var patient = await _context.patients.FindAsync(appointment.PatientId);
+            var doctor = await _context.doctors.FindAsync(appointment.DoctorId);
+            await _emailservices.SendEmailAsync(
+                patient.PatientEmail,
+                "Appointment Confirmation",
+                $"Your appointment is confirmed with  {doctor.DoctorName} at {appointment.AppointmentDate}.\n");
+
             return true;
         }
-        public async Task<AppointmentReadDto> UpdateAppoint(int id, AppointmentUpdateDto xyz)
-        {
-            var data = await _context.appointments.Include(x => x.Doctor).Include(x => x.Patient)
 
+        public async Task<AppointmentReadDto> UpdateAppoint(int id, AppointmentCreateDto xyz)
+        {
+            var data = await _context.appointments
+                .Include(x => x.Doctor)
+                .Include(x => x.Patient)
                 .FirstOrDefaultAsync(x => x.AppointmentId == id);
+
             if (data == null) return null;
+
+
+            var dt = xyz.AppointmentDate;
+            var day = dt.DayOfWeek;
+            var time = dt.TimeOfDay;
+
+            var schedule = await _context.Schedules
+                .Where(s => s.DoctorId == s.DoctorId)
+                .FirstOrDefaultAsync(d => d.Day == day);
+
+            if (schedule == null)
+                return null;
+
+            if (schedule.IsOnLeave || (time < schedule.StartTime || time >= schedule.EndTime))
+                return null;
+
+
+            var isBooked = await _context.appointments
+                .AnyAsync(x => x.AppointmentDate == xyz.AppointmentDate
+                            && x.DoctorId == xyz.DoctorId
+                            && x.AppointmentId != id);
+
+            if (isBooked)
+                return null;
+
             data.AppointmentDate = xyz.AppointmentDate;
-            data.Status = xyz.Status;
+            data.Status = xyz.Reason;
+            data.DoctorId = xyz.DoctorId;
+            data.PatientId = xyz.PatientId;
+
+
             await _context.SaveChangesAsync();
 
-
+            // Return DTO
             var show = new AppointmentReadDto
             {
                 AppointmentId = data.AppointmentId,
                 AppointmentDate = data.AppointmentDate,
                 DoctorName = data.Doctor.DoctorName,
                 PatientName = data.Patient.PatientName,
-
-                Status = data.Status
+                Reason = data.Status
             };
+
             return show;
         }
         public async Task<AppointmentReadDto> DeleteAppoint(int id)
@@ -117,7 +154,9 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             {
                 AppointmentDate = data.AppointmentDate,
                 AppointmentId = data.AppointmentId,
-
+                DoctorName = data.Doctor.DoctorName,
+                PatientName = data.Patient.PatientName,
+                Reason = data.Status,
             };
             return show;
         }

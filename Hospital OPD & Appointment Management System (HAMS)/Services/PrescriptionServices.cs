@@ -54,6 +54,8 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Services
             var show = new PrescriptionReadDto
             {
                 Advice = data.Advice,
+                AppointmentId = data.AppointmentId,
+
 
                 Medicine = data.Medicine,
                 Dosage = data.Dosage

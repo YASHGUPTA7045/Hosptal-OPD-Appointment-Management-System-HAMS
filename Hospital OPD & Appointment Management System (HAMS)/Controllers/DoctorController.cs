@@ -1,9 +1,11 @@
 ﻿using Hospital_OPD___Appointment_Management_System__HAMS_.Dto;
 using Hospital_OPD___Appointment_Management_System__HAMS_.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital_OPD___Appointment_Management_System__HAMS_.Controllers
 {
+    [Authorize(Roles = "Admin,Doctor")]
     [Route("api/[controller]")]
     [ApiController]
     public class DoctorController : ControllerBase

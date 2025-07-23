@@ -37,7 +37,7 @@ namespace Hospital_OPD___Appointment_Management_System__HAMS_.Controllers
 
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, AppointmentUpdateDto xyz)
+        public async Task<IActionResult> Update(int id, AppointmentCreateDto xyz)
         {
             var data = await _service.UpdateAppoint(id, xyz);
             if (data == null) return NotFound();
